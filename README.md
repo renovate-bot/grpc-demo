@@ -1,4 +1,4 @@
-A quick start demo for gRpc with protobuf.
+A quick start demo for gRPC with protobuf.
 
 
 ## Write a .proto file
