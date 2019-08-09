@@ -45,9 +45,10 @@ public class RouteGuideServer {
         server = serverBuilder.addService(new RouteGuideService(features))
                 .build();
     }
-    public void start() throws IOException {
+    public void  start() throws IOException {
         server.start();
         logger.info("Server started, listening on " + port);
+        //程序退出时触发该钩子
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -99,6 +100,7 @@ public class RouteGuideServer {
         }
 
         /**
+         * 接受request，通过streamObserver返回对象
          * Gets the {@link Feature} at the requested {@link Point}. If no feature at that location
          * exists, an unnamed feature is returned at the provided location.
          *
@@ -107,11 +109,12 @@ public class RouteGuideServer {
          */
         @Override
         public void getFeature(Point request, StreamObserver<Feature> responseObserver) {
+            //将该point对应的feature添加进去
             responseObserver.onNext(checkFeature(request));
             responseObserver.onCompleted();
         }
 
-        /**
+        /**接受request，通过streamObserver返回流对象
          * Gets all features contained within the given bounding {@link Rectangle}.
          *
          * @param request the bounding rectangle for the requested features.
@@ -125,12 +128,14 @@ public class RouteGuideServer {
             int bottom = min(request.getLo().getLatitude(), request.getHi().getLatitude());
 
             for (Feature feature : features) {
+                //若当前点不存在与文件中，则跳过
                 if (!RouteGuideUtil.exists(feature)) {
                     continue;
                 }
 
                 int lat = feature.getLocation().getLatitude();
                 int lon = feature.getLocation().getLongitude();
+                //将符合条件的feature添加到流中
                 if (lon >= left && lon <= right && lat >= bottom && lat <= top) {
                     responseObserver.onNext(feature);
                 }
@@ -138,7 +143,7 @@ public class RouteGuideServer {
             responseObserver.onCompleted();
         }
 
-        /**
+        /**接受一个流，返回一个streamObserver
          * Gets a stream of points, and responds with statistics about the "trip": number of points,
          * number of known features visited, total distance traveled, and total time spent.
          *
@@ -184,7 +189,7 @@ public class RouteGuideServer {
             };
         }
 
-        /**
+        /**接受一个流，返回一个流
          * Receives a stream of message/location pairs, and responds with a stream of all previous
          * messages at each of those locations.
          *

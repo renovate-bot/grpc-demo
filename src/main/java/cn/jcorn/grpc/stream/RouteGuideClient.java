@@ -34,12 +34,16 @@ public class RouteGuideClient {
     private Random random = new Random();
     private TestHelper testHelper;
 
-    /** Construct client for accessing RouteGuide server at {@code host:port}. */
+    /**
+     * Construct client for accessing RouteGuide server at {@code host:port}.
+     */
     public RouteGuideClient(String host, int port) {
         this(ManagedChannelBuilder.forAddress(host, port).usePlaintext());
     }
 
-    /** Construct client for accessing RouteGuide server using the existing channel. */
+    /**
+     * Construct client for accessing RouteGuide server using the existing channel.
+     */
     public RouteGuideClient(ManagedChannelBuilder<?> channelBuilder) {
         channel = channelBuilder.build();
         blockingStub = RouteGuideGrpc.newBlockingStub(channel);
@@ -56,10 +60,12 @@ public class RouteGuideClient {
     public void getFeature(int lat, int lon) {
         info("*** GetFeature: lat={0} lon={1}", lat, lon);
 
+        //构造一个request
         RouteGuideOuterClass.Point request = Point.newBuilder().setLatitude(lat).setLongitude(lon).build();
 
         Feature feature;
         try {
+            //同步调用
             feature = blockingStub.getFeature(request);
             if (testHelper != null) {
                 testHelper.onMessage(feature);
@@ -97,6 +103,7 @@ public class RouteGuideClient {
                         .setHi(Point.newBuilder().setLatitude(hiLat).setLongitude(hiLon).build()).build();
         Iterator<Feature> features;
         try {
+            //同步调用
             features = blockingStub.listFeatures(request);
             for (int i = 1; features.hasNext(); i++) {
                 Feature feature = features.next();
@@ -147,7 +154,7 @@ public class RouteGuideClient {
                 finishLatch.countDown();
             }
         };
-
+        //异步调用，随机选择点访问
         StreamObserver<Point> requestObserver = asyncStub.recordRoute(responseObserver);
         try {
             // Send numPoints points randomly selected from the features list.
@@ -212,7 +219,7 @@ public class RouteGuideClient {
                         finishLatch.countDown();
                     }
                 });
-
+        //添加到流中
         try {
             RouteNote[] requests =
                     {newNote("First message", 0, 0), newNote("Second message", 0, 1),
@@ -235,7 +242,9 @@ public class RouteGuideClient {
         return finishLatch;
     }
 
-    /** Issues several different requests and then exits. */
+    /**
+     * Issues several different requests and then exits.
+     */
     public static void main(String[] args) throws InterruptedException {
         List<Feature> features;
         try {
