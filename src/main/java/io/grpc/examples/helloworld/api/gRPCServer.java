@@ -1,11 +1,12 @@
-package org.apache.dubbo.rpc.protocol.grpc.api;
+package io.grpc.examples.helloworld.api;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.ServerServiceDefinition;
+import io.grpc.examples.helloworld.GreeterGrpc;
+import io.grpc.examples.helloworld.HelloReply;
+import io.grpc.examples.helloworld.HelloRequest;
 import io.grpc.stub.StreamObserver;
-import org.apache.dubbo.rpc.protocol.grpc.GreeterGrpc;
-import org.apache.dubbo.rpc.protocol.grpc.HelloService;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class gRPCServer {
     private Server server;
-    private int port = 8848;
+    private int port;
 
     public gRPCServer(int port) {
         this.port = port;
@@ -40,8 +41,8 @@ public class gRPCServer {
 
     private static class GreeterImpl extends GreeterGrpc.GreeterImplBase {
         @Override
-        public void helloWorld(HelloService.HelloRequest request, StreamObserver<HelloService.HelloResponse> responseObserver) {
-            HelloService.HelloResponse response = HelloService.HelloResponse.newBuilder().setResponseData("server reply:" + request.getRequestData() + System.currentTimeMillis()).build();
+        public void sayHello(HelloRequest request, StreamObserver<HelloReply> responseObserver) {
+            HelloReply response = HelloReply.newBuilder().setMessage("server reply:" + request.getName() + System.currentTimeMillis()).build();
             responseObserver.onNext(response);
             System.out.println(response);
             responseObserver.onCompleted();
@@ -49,7 +50,7 @@ public class gRPCServer {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        gRPCServer server = new gRPCServer(8848);
+        gRPCServer server = new gRPCServer(50051);
         server.start();
         new CountDownLatch(1).await();
     }
