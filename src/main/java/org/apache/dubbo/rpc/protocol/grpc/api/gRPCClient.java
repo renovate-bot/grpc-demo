@@ -18,7 +18,7 @@ public class gRPCClient {
 
     public gRPCClient(String host, int port) {
 //        this(ManagedChannelBuilder.forAddress(host, port).usePlaintext().build());
-        this(ManagedChannelBuilder.forTarget("dns:///localhost:8848").usePlaintext().build());
+        this(ManagedChannelBuilder.forTarget("dns:///localhost:50051").usePlaintext().build());
     }
 
     public void greet() {

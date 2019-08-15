@@ -13,7 +13,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class gRPCServer {
     private Server server;
-    private int port = 8848;
+    private int port;
 
     public gRPCServer(int port) {
         this.port = port;
